@@ -31,4 +31,5 @@ data = matrix(ncol = 2)
 for (i in 1:length(countn)) {
   data = rbind(data, matrix(rep(record_m[i,], countn[i]), ncol = 2, byrow = T))
 }
-data = data[-1,]
+data = cbind(data[-1,], Litter = 1:1328) %>% as.data.frame()
+colnames(data)[1:2] = c("Nimplants","Ndead")
