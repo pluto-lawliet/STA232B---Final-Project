@@ -33,3 +33,53 @@ for (i in 1:length(countn)) {
 }
 data = cbind(data[-1,], Litter = 1:1328) %>% as.data.frame()
 colnames(data)[1:2] = c("Nimplants","Ndead")
+
+# MCEM
+set.seed(232)
+litter = 1328
+mu = 1
+sigma = runif(1)
+out = matrix(NA, ncol = 1, nrow = litter)
+
+for (i in 1:100) {
+  # E-step
+  ## Metropolis-Hastings algorithm
+  alpha_initial = rnorm(litter, mean=0, sd=sigma)
+  for (k in 1:1500) { # set a relatively large number for convergence
+    alpha_update = rnorm(litter, mean=0, sd=sigma)
+    
+    for (j in 1:litter) {
+      p_new = expit(mu+alpha_update[j])^data[j,2]*
+        (1-expit(mu+alpha_update[j]))^(data[j,1]-data[j,2])
+      p_old = expit(mu+alpha_initial[j])^data[j,2]*
+        (1-expit(mu+alpha_initial[j]))^(data[j,1]-data[j,2])
+      alpha = min(1, p_new/p_old)
+      
+      u = runif(1)
+      if (u < alpha) {alpha_initial[j] = alpha_update[j]}
+    }
+    out = cbind(out, alpha_initial)
+  }
+  out = out[,-(1:1000)] # drop the non-converged values
+  
+  fr = function(x) {
+    -mean(apply(out,2, function(i) {sum(x*data[,2]+data[,2]*i) -
+        sum(data[,1]*log(1+exp(x+i)))
+    }))}
+  
+  # M-step
+  final_mu = NULL
+  final_sigma = NULL
+    final = optim(mu, fr, lower = -5, upper = 5, method = "L-BFGS-B")
+    mu = final$par
+    sigma = sqrt(mean(out^2))
+    
+    print(paste(i, mu, sigma))
+    final_mu[i] = mu
+    final_sigma[i] = sigma
+}
+
+final = cbind(final_mu, final_sigma)
+
+# save(final,file="/Users/xuchenghuiyun/Desktop/final.Rdata")
+# load(file="/Users/xuchenghuiyun/Desktop/final.Rdata")
