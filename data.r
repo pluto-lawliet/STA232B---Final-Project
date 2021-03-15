@@ -49,11 +49,11 @@ for (i in 1:20) {
     alpha_update = rnorm(litter, mean=0, sd=sigma)
     
     for (k in 1:litter) {
-      p_new = expit(mu+alpha_update[k])^data[k,2]*
+      a_new = expit(mu+alpha_update[k])^data[k,2]*
         (1-expit(mu+alpha_update[k]))^(data[k,1]-data[k,2])
-      p_old = expit(mu+alpha_initial[k])^data[k,2]*
+      a_old = expit(mu+alpha_initial[k])^data[k,2]*
         (1-expit(mu+alpha_initial[k]))^(data[k,1]-data[k,2])
-      alpha = min(1, p_new/p_old)
+      alpha = min(1, a_new/a_old)
       
       u = runif(1)
       if (u < alpha) {alpha_initial[k] = alpha_update[k]}
