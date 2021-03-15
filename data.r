@@ -45,26 +45,26 @@ for (i in 1:20) {
   # E-step
   ## Metropolis-Hastings algorithm
   alpha_initial = rnorm(litter, mean=0, sd=sigma)
-  for (k in 1:1000) { # set a relatively large number for convergence
+  for (j in 1:1000) { # set a relatively large number for convergence
     alpha_update = rnorm(litter, mean=0, sd=sigma)
     
-    for (j in 1:litter) {
-      p_new = expit(mu+alpha_update[j])^data[j,2]*
-        (1-expit(mu+alpha_update[j]))^(data[j,1]-data[j,2])
-      p_old = expit(mu+alpha_initial[j])^data[j,2]*
-        (1-expit(mu+alpha_initial[j]))^(data[j,1]-data[j,2])
+    for (k in 1:litter) {
+      p_new = expit(mu+alpha_update[k])^data[k,2]*
+        (1-expit(mu+alpha_update[k]))^(data[k,1]-data[k,2])
+      p_old = expit(mu+alpha_initial[k])^data[k,2]*
+        (1-expit(mu+alpha_initial[k]))^(data[k,1]-data[k,2])
       alpha = min(1, p_new/p_old)
       
       u = runif(1)
-      if (u < alpha) {alpha_initial[j] = alpha_update[j]}
+      if (u < alpha) {alpha_initial[k] = alpha_update[k]}
     }
     out = cbind(out, alpha_initial)
   }
   out = out[,-(1:500)] # drop the non-converged values
   
   fr = function(x) {
-    -mean(apply(out,2, function(i) {sum(x*data[,2]+data[,2]*i) -
-        sum(data[,1]*log(1+exp(x+i)))
+    -mean(apply(out,2, function(o) {sum((x+o) * data[,2]) -
+        sum(log(1+exp(x+o)) * data[,1]) # loss function
     }))}
   
   # M-step
