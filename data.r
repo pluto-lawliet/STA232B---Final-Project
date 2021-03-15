@@ -70,13 +70,13 @@ for (i in 1:20) {
   # M-step
   final_mu = NULL
   final_sigma = NULL
-    final = optim(mu, fr, lower = -5, upper = 5, method = "L-BFGS-B")
-    mu = final$par
-    sigma = sqrt(mean(out^2))
+  final = optim(mu, fr, lower = -5, upper = 5, method = "L-BFGS-B")
+  mu = final$par
+  sigma = sqrt(mean(out^2))
     
-    print(paste(i, mu, sigma))
-    final_mu[i] = mu
-    final_sigma[i] = sigma
+  print(paste(i, mu, sigma))
+  final_mu[i] = mu
+  final_sigma[i] = sigma
 }
 
 final_result = cbind(final_mu, final_sigma)
