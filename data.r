@@ -86,8 +86,10 @@ final_result = cbind(final_mu, final_sigma)
 
 set.seed(232)
 litter = 1328
+######################
 mu = -2.276878
 sigma = 0.6742865
+######################
 out = matrix(NA, ncol = 1, nrow = litter)
 
   ## Metropolis-Hastings algorithm
@@ -115,7 +117,7 @@ for (i in 1:ncol(out)){
   H = diag(H)
   S = c(sum(data[,2]) - data[,1]%*%expit(mu+alpha),
         alpha %*% alpha /sigma^3-1328/sigma)
-  I <- I + H - matrix(S, ncol = 1) %*% matrix(S, ncol = 2)
+  I = I + H - matrix(S, ncol = 1) %*% matrix(S, ncol = 2)
 }
 I  = I/ncol(out)
 sqrt(solve(I)[1,1])
