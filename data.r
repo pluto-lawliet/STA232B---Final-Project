@@ -37,15 +37,15 @@ colnames(data)[1:2] = c("Nimplants","Ndead")
 # MCEM
 set.seed(232)
 litter = 1328
-mu = 1
-sigma = runif(1)
+mu = -2
+sigma = 0.7
 out = matrix(NA, ncol = 1, nrow = litter)
 
-for (i in 1:100) {
+for (i in 1:20) {
   # E-step
   ## Metropolis-Hastings algorithm
   alpha_initial = rnorm(litter, mean=0, sd=sigma)
-  for (k in 1:1500) { # set a relatively large number for convergence
+  for (k in 1:1000) { # set a relatively large number for convergence
     alpha_update = rnorm(litter, mean=0, sd=sigma)
     
     for (j in 1:litter) {
@@ -60,7 +60,7 @@ for (i in 1:100) {
     }
     out = cbind(out, alpha_initial)
   }
-  out = out[,-(1:1000)] # drop the non-converged values
+  out = out[,-(1:500)] # drop the non-converged values
   
   fr = function(x) {
     -mean(apply(out,2, function(i) {sum(x*data[,2]+data[,2]*i) -
