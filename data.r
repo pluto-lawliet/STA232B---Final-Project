@@ -83,3 +83,59 @@ final_result = cbind(final_mu, final_sigma)
 
 # save(final_result,file="/Users/xuchenghuiyun/Desktop/final.Rdata")
 # load(file="/Users/xuchenghuiyun/Desktop/final.Rdata")
+
+## standard error of MCEM
+set.seed(232)
+litter = 1328
+###############################################################################need to change 
+mu = -2.276878
+sigma = 0.6742865
+###############################################################################need to change
+out = matrix(NA, ncol = 1, nrow = litter)
+
+  ## Metropolis-Hastings algorithm
+  alpha_initial = rnorm(litter, 0, sigma)
+  for (k in 1:1500) { # set a relatively large number for convergence
+    alpha_update = rnorm(litter, 0, sigma)
+    
+    for (j in 1:litter) {
+      p_new = exp(mu+alpha_update[j])^data[j,2]/(1+exp(mu+alpha_update[j]))^data[j,1]
+      p_old = exp(mu+alpha_initial[j])^data[j,2]/(1+exp(mu+alpha_initial[j]))^data[j,1]
+      alpha = min(1, p_new/p_old)
+      
+      u = runif(1)
+      if (u < alpha) {alpha_initial[j] = alpha_update[j]}
+    }
+    out = cbind(out, alpha_initial)
+  }
+  out = out[,-(1:1000)] # drop the non-converged values
+
+I = matrix(0, 2, 2)  
+for (i in 1:ncol(out)){
+  alpha = out[,i]
+  H = c(matrix(data[,1],nrow=1)%*%matrix(expit(mu+alpha)/(1+exp(mu+alpha)),ncol=1),
+        3*alpha %*% alpha /(sigma^4)-1328/sigma^2)
+  H = diag(H)
+  S = c(sum(data[,2]) - data[,1]%*%expit(mu+alpha),
+        alpha %*% alpha /sigma^3-1328/sigma)
+  I <- I + H - matrix(S, ncol = 1) %*% matrix(S, ncol = 2)
+}
+I  = I/ncol(out)
+sqrt(solve(I)[1,1])
+sqrt(solve(I)[2,2])
+
+Z=out
+mat=data
+m=1328
+fis=matrix(0,2,2)
+for (i in 1:ncol(Z)){
+  alp <- Z[,i]
+  p1 <- c(sum(mat[,1]*expit(mu+alp)/(1+exp(mu+alp))),3*sum(alp^2)/(sigma^4)-m/sigma^2)
+  p2 <- c(sum(mat[,2]-mat[,1]*expit(mu+alp)),sum(alp^2)/sigma^3-m/sigma)
+  p1 <- diag(p1)
+  p2 <- matrix(p2,ncol = 1)%*%matrix(p2,ncol = 2)
+  fis <- fis + p1-p2
+}
+fis <- fis/ncol(Z)
+print(sqrt(solve(fis)[1,1]))
+print(sqrt(solve(fis)[2,2]))
