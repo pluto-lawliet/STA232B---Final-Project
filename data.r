@@ -79,7 +79,7 @@ for (i in 1:100) {
     final_sigma[i] = sigma
 }
 
-final = cbind(final_mu, final_sigma)
+final_result = cbind(final_mu, final_sigma)
 
-# save(final,file="/Users/xuchenghuiyun/Desktop/final.Rdata")
+# save(final_result,file="/Users/xuchenghuiyun/Desktop/final.Rdata")
 # load(file="/Users/xuchenghuiyun/Desktop/final.Rdata")
